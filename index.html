@@ -1,0 +1,211 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  /* Adicione esta regra para desativar o redimensionamento automático da página */
+  @viewport {
+    width: device-width;
+    zoom: 1.0;
+  }
+  body {
+    background-color: #282828;
+    color: white;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+  }
+
+  .header {
+    text-align: center;
+    padding: 20px;
+    background-color: #000;
+    color: #0f0;
+    font-size: 24px;
+  }
+
+  .container {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap; /* Para que os elementos possam quebrar para a próxima linha */
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  .textbox-container {
+    width: 45%;
+    text-align: center;
+  }
+
+  .textbox {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #333;
+    color: white;
+  }
+
+  .output {
+    margin-top: 10px;
+    color: #0f0;
+    text-align: center;
+  }
+
+  .button-container {
+    width: 100%; /* Para ocupar a largura total da caixa de texto */
+    text-align: center; /* Centralize os botões */
+    margin-top: 10px;
+  }
+
+  .button-container button {
+    margin: 5px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+    font-size: 16px;
+  }
+
+  .button-container button:hover {
+    background-color: #0056b3;
+  }
+
+  .button-container input[type="text"] {
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #333;
+    color: white;
+  }
+
+  .neon-text {
+    font-size: 10px;
+    color: #00fff6;
+    text-shadow: 0 0 10px #00fff6, 0 0 20px #00fff6, 0 0 30px #00fff6;
+  }
+</style>
+<title>Contador de bytes por Linha</title>
+</head>
+<body>
+  <div class="header">
+    CONTADOR DE BYTES PARA TRADUZIR JOGOS
+    <div>ROMHACK</div>
+    <div class="neon-text">LOBO NINTENDISTA</div>
+  </div>
+  <div class="container">
+    <div class="textbox-container">
+      <h2>Texto Original</h2>
+      <textarea id="textbox1" class="textbox" rows="8" cols="30" oninput="countCharacters(1)"></textarea>
+      <div class="output" id="output1"></div>
+    </div>
+    <div class="textbox-container">
+      <h2>Texto Modificado</h2>
+      <textarea id="textbox2" class="textbox" rows="8" cols="30" oninput="countCharacters(2)"></textarea>
+      <div class="output" id="output2"></div>
+      <div class="button-container">
+        <label for="lineBreakInterval">Quebra de Linha em: (BYTES)</label>
+        <input type="number" id="lineBreakInterval" value="30">
+        <button class="line-break-button" onclick="addLineBreaks()">Adicionar</button>
+        <button class="line-break-button" onclick="removeLineBreaks()">Remover</button>
+        <button class="copy-button" onclick="copyText(2)">Copiar Texto</button>
+        <label for="specialCharacter">Marcações de jogo:</label>
+        <input type="text" id="specialCharacter" value="">
+        <button class="special-char-button" onclick="addSpecialCharacter()">Adicionar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function countCharacters(textboxNumber) {
+      const textboxId = `textbox${textboxNumber}`;
+      const outputId = `output${textboxNumber}`;
+
+      const textbox = document.getElementById(textboxId);
+      const outputDiv = document.getElementById(outputId);
+
+      const lines = textbox.value.split('\n');
+      let outputHTML = '';
+
+      for (let i = 0; i < lines.length; i++) {
+        const text = lines[i];
+        outputHTML += `Linha ${i + 1}: ${text.length} caracteres<br>`;
+      }
+
+      outputDiv.innerHTML = outputHTML;
+    }
+
+    function copyText(textboxNumber) {
+      const textboxId = `textbox${textboxNumber}`;
+      const textbox = document.getElementById(textboxId);
+
+      textbox.select();
+      document.execCommand("copy");
+    }
+
+    function removeLineBreaks() {
+      const textboxModified = document.getElementById('textbox2');
+      const textWithoutLineBreaks = textboxModified.value.replace(/\n/g, ' ');
+      textboxModified.value = textWithoutLineBreaks;
+      countCharacters(2); // Atualize a contagem de caracteres
+    }
+
+    function addLineBreaks() {
+      const textboxModified = document.getElementById('textbox2');
+      const lineBreakInterval = parseInt(document.getElementById('lineBreakInterval').value);
+      const textWithLineBreaks = addLineBreaksToText(textboxModified.value, lineBreakInterval);
+      textboxModified.value = textWithLineBreaks;
+      countCharacters(2); // Atualize a contagem de caracteres
+    }
+
+    function addSpecialCharacter() {
+      const textboxModified = document.getElementById('textbox2');
+      const specialCharacter = document.getElementById('specialCharacter').value;
+      const textWithSpecialCharacter = addSpecialCharacterToText(textboxModified.value, specialCharacter);
+      textboxModified.value = textWithSpecialCharacter;
+      countCharacters(2); // Atualize a contagem de caracteres
+    }
+
+    function addSpecialCharacterToText(text, specialCharacter) {
+      const lines = text.split('\n');
+      const resultLines = [];
+
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        if (i === lines.length - 1) {
+          resultLines.push(line); // Última linha, não adicione o caractere especial
+        } else {
+          resultLines.push(line + specialCharacter); // Adicione o caractere especial ao final de cada linha, exceto na última
+        }
+      }
+
+      return resultLines.join('\n');
+    }
+
+    function addLineBreaksToText(text, lineBreakInterval) {
+      const words = text.split(' ');
+      let lines = [];
+      let currentLine = '';
+
+      for (const word of words) {
+        if ((currentLine + ' ' + word).length <= lineBreakInterval) {
+          currentLine += (currentLine === '' ? '' : ' ') + word;
+        } else {
+          lines.push(currentLine);
+          currentLine = word;
+        }
+      }
+
+      if (currentLine !== '') {
+        lines.push(currentLine);
+      }
+
+      return lines.join('\n');
+    }
+  </script>
+</body>
+</html>
